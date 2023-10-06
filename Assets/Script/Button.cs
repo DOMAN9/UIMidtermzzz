@@ -14,6 +14,20 @@ public class Button : MonoBehaviour
     public float TargetTime;
     public Vector3 TargetPos;
     public float MoveSpeed;
+    private bool isDropping;
+    private Vector3 originalPosition;
+    private bool isFading;
+
+    public Button start;
+    private bool isBrowsing;
+    private Vector3 storedPosition;
+    private bool isFlying;
+
+    public void Start()
+    {
+
+        originalPosition = image1.transform.position;
+    }
 
     public void Fade()
     {
@@ -67,7 +81,62 @@ public class Button : MonoBehaviour
         image1.transform.DOMove(TargetPos, MoveSpeed).SetEase(Ease.OutExpo).OnComplete(() => ResizeDown());
     }
 
+    public void Drop()
+    {
+        if (!isDropping)
+        {
+            Vector3 targetPosition = originalPosition - Vector3.down * 30f;
+            image1.transform.DOScale(0, 0.3f);
+            image1.transform.DOMove(targetPosition, 0.3f).OnComplete(() => isDropping = true);
+            image1.DOFade(0f, 0.3f).OnComplete(() => isFading = true);
+        }
+        else
+        {
+            image1.transform.DOMove(originalPosition, 0.3f).OnComplete(() => isDropping = false);
+            image1.transform.DOScale(3.6239f, 0.3f);
+            image1.DOFade(1f, 0.3f).OnComplete(() => isFading = false);
+        }
+    }
 
+    public void Browse()
+    {
+        if (!isBrowsing)
+        {
+            storedPosition = image1.transform.position;
+            Vector3 targetPosition = originalPosition - Vector3.right * 20f;
+            Vector3 leftTargetPosition = originalPosition - Vector3.left * 18f;
+
+            image1.transform.DOMove(targetPosition, 0.2f).SetEase(Ease.Linear).OnComplete(() =>
+            {
+                image1.transform.DOMove(leftTargetPosition, 0.18f).SetEase(Ease.Linear).OnComplete(() =>
+                {
+                    image1.DOFade(0f, 0.2f).OnComplete(() => isBrowsing = true);
+                });
+            });
+        }
+        else
+        {
+            image1.transform.DOMove(storedPosition, 0.3f).SetEase(Ease.InOutQuad);
+            image1.transform.DOScale(0, 0.01f);
+            image1.transform.DOScale(3.6239f, 0.3f);
+            image1.DOFade(1f, 0.3f).OnComplete(() => isBrowsing = false);
+        }
+    }
+
+    public void Fly()
+    {
+        if (!isFlying)
+        {
+            Vector3 targetPosition = originalPosition;
+            targetPosition.x -= 150f;
+
+            image1.transform.DOMove(targetPosition, .3f).SetEase(Ease.InSine).OnComplete(() => isFlying = true);
+        }
+        else
+        {
+            image1.transform.DOMove(originalPosition, .8f).SetEase(Ease.OutBounce).OnComplete(() => isFlying = false);
+        }
+    }
 
 
 }
